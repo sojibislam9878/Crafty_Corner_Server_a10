@@ -88,6 +88,14 @@ async function run() {
       const result = await craftItemsCollection.insertOne(newItems);
       res.send(result);
     });
+
+    app.delete("/craftitems/:id", async (req, res)=>{
+      console.log("hitted");
+      const id =req.params.id
+      const qurey = {_id : new ObjectId(id)}
+      const result = await craftItemsCollection.deleteOne(qurey)
+      res.send(result)
+    })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
