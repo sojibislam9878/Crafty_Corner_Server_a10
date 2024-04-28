@@ -72,6 +72,7 @@ async function run() {
         },
       };
       const result =await craftItemsCollection.updateOne(filter,updateCard ,options )
+      res.send(result)
     });
 
     app.get("/myCarftItems/:email", async (req, res) => {
