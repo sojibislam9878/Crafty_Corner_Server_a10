@@ -29,7 +29,7 @@ async function run() {
       .collection("craftItems");
 
     app.get("/craftItems", async (req, res) => {
-      const cursor = craftItemsCollection.find();
+      const cursor = craftItemsCollection.find(req.query);
       const result = await cursor.toArray();
       res.send(result);
     });
@@ -44,7 +44,6 @@ async function run() {
     // })
 
     app.get("/singleCard/:id", async (req, res) => {
-      console.log(req.params.id);
       const result = await craftItemsCollection.findOne({
         _id: new ObjectId(req.params.id),
       });
@@ -53,11 +52,10 @@ async function run() {
     });
 
     app.put("/updateCard/:id", async (req, res) => {
-      console.log("hitted");
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
-      const updatedCard= req.body
+      const updatedCard = req.body;
       const updateCard = {
         $set: {
           photo: updatedCard.photo,
@@ -71,12 +69,15 @@ async function run() {
           short_description: updatedCard.short_description,
         },
       };
-      const result =await craftItemsCollection.updateOne(filter,updateCard ,options )
-      res.send(result)
+      const result = await craftItemsCollection.updateOne(
+        filter,
+        updateCard,
+        options
+      );
+      res.send(result);
     });
 
     app.get("/myCarftItems/:email", async (req, res) => {
-      console.log(req.params.email);
       const result = await craftItemsCollection
         .find({ email: req.params.email })
         .toArray();
@@ -90,13 +91,12 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/craftitems/:id", async (req, res)=>{
-      console.log("hitted");
-      const id =req.params.id
-      const qurey = {_id : new ObjectId(id)}
-      const result = await craftItemsCollection.deleteOne(qurey)
-      res.send(result)
-    })
+    app.delete("/craftitems/:id", async (req, res) => {
+      const id = req.params.id;
+      const qurey = { _id: new ObjectId(id) };
+      const result = await craftItemsCollection.deleteOne(qurey);
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
