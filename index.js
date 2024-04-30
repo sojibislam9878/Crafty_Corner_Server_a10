@@ -26,6 +26,10 @@ async function run() {
 
     const craftItemsCollection = client
       .db("craftItemsDB")
+      .collection("subItems");
+
+    const subCategoryItemsCollection = client
+      .db("craftItemsDB")
       .collection("craftItems");
 
     app.get("/craftItems", async (req, res) => {
@@ -34,6 +38,12 @@ async function run() {
       res.send(result);
     });
     
+    app.get("/subItems", async (req, res) => {
+      const cursor = subCategoryItemsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     app.get("/filtercraftItems", async (req, res) => {
       const cursor = craftItemsCollection.find(req.query);
       const result = await cursor.toArray();
