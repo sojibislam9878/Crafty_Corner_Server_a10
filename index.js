@@ -26,11 +26,11 @@ async function run() {
 
     const craftItemsCollection = client
       .db("craftItemsDB")
-      .collection("subItems");
+      .collection("craftItems");
 
     const subCategoryItemsCollection = client
       .db("craftItemsDB")
-      .collection("craftItems");
+      .collection("subItems");
 
     app.get("/craftItems", async (req, res) => {
       const cursor = craftItemsCollection.find();
@@ -39,9 +39,11 @@ async function run() {
     });
     
     app.get("/subItems", async (req, res) => {
-      const cursor = subCategoryItemsCollection.find();
+      const cursor = subCategoryItemsCollection.find(req.query);
       const result = await cursor.toArray();
       res.send(result);
+      console.log("hiteed");
+      console.log(req.query);
     });
 
     app.get("/filtercraftItems", async (req, res) => {
@@ -61,6 +63,14 @@ async function run() {
 
     app.get("/singleCard/:id", async (req, res) => {
       const result = await craftItemsCollection.findOne({
+        _id: new ObjectId(req.params.id),
+      });
+      console.log(result);
+      res.send(result);
+    });
+
+    app.get("/subSingleCard/:id", async (req, res) => {
+      const result = await subCategoryItemsCollection.findOne({
         _id: new ObjectId(req.params.id),
       });
       console.log(result);
