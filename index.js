@@ -51,16 +51,7 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
-    // app.get("/singlecard/:id",async (req, res)=>{
-    //   const result =await craftItemsCollection.findOne({_id: new ObjectId(req.params.id)})
-    //   console.log(result);
-    //   res.send(result)
-    // })
-
-    // app.get("/singlecard/:id", async (req, res)=>{
-    //   console.log("hited");
-    // })
-
+    
     app.get("/singleCard/:id", async (req, res) => {
       const result = await craftItemsCollection.findOne({
         _id: new ObjectId(req.params.id),
