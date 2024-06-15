@@ -1,13 +1,19 @@
 const express = require("express");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
+const cookieParser = require('cookie-parser');
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3200;
 
 // middleware
-app.use(cors());
+app.use(cors({
+  origin:["http://localhost:5173"],
+  credentials:true
+}));
 app.use(express.json());
+app.use(cookieParser())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lb51cqq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -32,12 +38,51 @@ async function run() {
       .db("craftItemsDB")
       .collection("subItems");
 
-    app.get("/craftItems", async (req, res) => {
-      const cursor = craftItemsCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
+    // auth relate api
+
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const token = jwt.sign(user, process.env.ACC_TOKEN_SECRET, {
+        expiresIn: "1hr",
+      });
+      console.log(process.env.ACC_TOKEN_SECREt);
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite:  process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        })
+        .send({ success: true });
     });
+
     
+
+    // data related api
+    app.get("/craftItems", async (req, res) => {
+      // console.log("token", req.cookies.token);
+      const cursor = craftItemsCollection.find();
+      // console.log(cursor);
+      const result = await cursor.toArray();
+      console.log(result);
+      // res.send(result);
+    });
+
+
+    const foodsCollection = client
+      .db("RestaurantDB")
+      .collection("allFoods");
+
+      app.get("/allFoods",async (req, res)=>{
+        const cursor = foodsCollection.find()
+        const result = await cursor.toArray()
+        console.log(result);
+        res.send("hello")
+      })
+
+
+
+
     app.get("/subItems", async (req, res) => {
       const cursor = subCategoryItemsCollection.find(req.query);
       const result = await cursor.toArray();
@@ -51,7 +96,7 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
-    
+
     app.get("/singleCard/:id", async (req, res) => {
       const result = await craftItemsCollection.findOne({
         _id: new ObjectId(req.params.id),
